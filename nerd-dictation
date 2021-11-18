@@ -1193,7 +1193,7 @@ This creates the directory used to store internal data, so other commands such a
             numbers_as_digits=args.numbers_as_digits,
             numbers_use_separator=args.numbers_use_separator,
             timeout=args.timeout,
-            idle_time=min(args.idle_time, 0.5),
+            idle_time=min(args.idle_time, 0.25),
             delay_exit=args.delay_exit,
             punctuate_from_previous_timeout=args.punctuate_from_previous_timeout,
             output=args.output,
