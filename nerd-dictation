@@ -625,6 +625,16 @@ def text_from_vosk_pipe(
 
         # Progressive support (type as you speak).
         nonlocal text_prev
+        global snoozing
+        if text == "wake up":
+            snoozing = False
+            print ("woke up")
+        if text == "snooze" or text == "go to sleep":
+            snoozing = True
+            print ("snoozing")
+
+        if snoozing:
+            return
 
         user_config = user_config_as_module_or_none()
         if user_config is not None:
@@ -743,6 +753,7 @@ def text_from_vosk_pipe(
 
     return handled_any
 
+snoozing = False
 
 def main_begin(
     *,
