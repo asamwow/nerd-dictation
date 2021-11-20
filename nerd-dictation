@@ -626,28 +626,35 @@ def text_from_vosk_pipe(
         # Progressive support (type as you speak).
         nonlocal text_prev
         global snoozing
-        if text == "wake up":
-            snoozing = False
-            print ("woke up")
-        if text == "snooze" or text == "go to sleep":
+        if (text == "snooze" or text == "the snooze" or
+           text == "go to sleep" or text == "the go to sleep"):
             snoozing = True
             print ("snoozing")
 
         if snoozing:
-            return
+            text_curr = ""
+            text_list = []
+            macro = None
 
         user_config = user_config_as_module_or_none()
-        if user_config is not None:
+        if user_config is not None and not snoozing:
             macro = process_macro_with_user_config(user_config, text)
             if macro is not None:
                 text_curr = ""
                 text_list = []
 
-        if macro is None:
+        if macro is None and not snoozing:
             if progressive_continuous:
                 text_curr = process_fn(text)
             else:
                 text_curr = process_fn(" ".join(text_list + [text]))
+
+        if text == "wake up" or text == "the wake up":
+            snoozing = False
+            text_curr = ""
+            text_list = []
+            macro = None
+            print ("woke up")
 
         if text_curr != text_prev:
             match = min(len(text_curr), len(text_prev))
