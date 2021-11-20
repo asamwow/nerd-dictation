@@ -612,8 +612,9 @@ def text_from_vosk_pipe(
         # Progressive support (type as you speak).
         nonlocal text_prev
         global snoozing
-        if (text == "snooze" or text == "the snooze" or
-           text == "go to sleep" or text == "the go to sleep"):
+        if ((text == "snooze" or text == "the snooze" or
+           text == "go to sleep" or text == "the go to sleep") and snoozing == False):
+            subprocess.check_output(("festival", "--tts", "/home/dvorak/.config/nerd-dictation/sleep.txt")).decode("utf-8")
             snoozing = True
             print ("snoozing")
 
@@ -636,10 +637,12 @@ def text_from_vosk_pipe(
                 text_curr = process_fn(" ".join(text_list + [text]))
 
         if text == "wake up" or text == "the wake up":
-            snoozing = False
             text_curr = ""
             text_list = []
             macro = None
+            if snoozing == True:
+                subprocess.check_output(("festival", "--tts", "/home/dvorak/.config/nerd-dictation/awake.txt")).decode("utf-8")
+            snoozing = False
             print ("woke up")
 
         if text_curr != text_prev:
