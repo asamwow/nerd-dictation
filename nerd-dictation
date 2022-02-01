@@ -615,6 +615,8 @@ def text_from_vosk_pipe(
 
     def windows_parse_key(key):
         from pynput.keyboard import Key
+        if (key == "shift"):
+            return Key.shift
         if (key == "alt"):
             return Key.alt
         if (key == "control"):
@@ -645,7 +647,13 @@ def text_from_vosk_pipe(
                 kbd.press(leader_key)
                 kbd.release(leader_key)
                 return
-        kbd.type(command)
+        for char in command:
+            if char == '_':
+                windows_command_hack("shift+-", kbd)
+            elif char.isupper():
+                windows_command_hack("shift+" + char.lower(), kbd)
+            else:
+                kbd.type(char)
 
 
     def handle_fn_wrapper(text: str, is_partial_arg: bool) -> None:
@@ -663,7 +671,6 @@ def text_from_vosk_pipe(
         global snoozing
         if ((text == "snooze" or text == "the snooze" or
            text == "go to sleep" or text == "the go to sleep") and snoozing == False):
-            subprocess.check_output(("festival", "--tts", "/home/dvorak/.config/nerd-dictation/sleep.txt")).decode("utf-8")
             snoozing = True
             print ("snoozing")
 
@@ -689,8 +696,6 @@ def text_from_vosk_pipe(
             text_curr = ""
             text_list = []
             macro = None
-            if snoozing == True:
-                subprocess.check_output(("festival", "--tts", "/home/dvorak/.config/nerd-dictation/awake.txt")).decode("utf-8")
             snoozing = False
             print ("woke up")
 
@@ -1184,7 +1189,7 @@ This creates the directory used to store internal data, so other commands such a
     subparse.add_argument(
         "--numbers-as-digits",
         dest="numbers_as_digits",
-        default=False,
+        default=True,
         action="store_true",
         help=("Convert numbers into digits instead of using whole words."),
         required=False,
