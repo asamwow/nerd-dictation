@@ -613,6 +613,41 @@ def text_from_vosk_pipe(
     # Track this to prevent excessive load when the "partial" result doesn't change.
     json_text_partial_prev = ""
 
+    def windows_parse_key(key):
+        from pynput.keyboard import Key
+        if (key == "alt"):
+            return Key.alt
+        if (key == "control"):
+            return Key.ctrl
+        if key == "Backspace":
+            return Key.backspace
+        if key == "Tab":
+            return Key.tab
+        if key == "enter":
+            return Key.enter
+        return None
+
+    def windows_command_hack(command, kbd):
+        from pynput.keyboard import Key
+        args = command.split('+')
+        leader_key = windows_parse_key(args[0])
+        if len(args) > 1 and leader_key != None:
+            with kbd.pressed(leader_key):
+                follower_key = windows_parse_key(args[1]);
+                if follower_key == None:
+                    kbd.type(args[1])
+                else:
+                    kbd.press(follower_key)
+                    kbd.release(follower_key)
+            return
+        else:
+            if leader_key != None:
+                kbd.press(leader_key)
+                kbd.release(leader_key)
+                return
+        kbd.type(command)
+
+
     def handle_fn_wrapper(text: str, is_partial_arg: bool) -> None:
         nonlocal handled_any
         # Simple deferred text input, just accumulate values in a list (finish entering text on exit).
@@ -673,8 +708,10 @@ def text_from_vosk_pipe(
 
         if not is_partial_arg:
             if macro is not None:
+                from pynput.keyboard import Controller  # type: ignore
+                kbd = Controller();
                 for command in macro:
-                    subprocess.check_output(command).decode("utf-8")
+                    windows_command_hack(command, kbd)
             if progressive_continuous:
                 text_prev = ""
             else:
