@@ -712,6 +712,7 @@ def text_from_vosk_pipe(
                 kbd = Controller();
                 for command in macro:
                     windows_command_hack(command, kbd)
+                    time.sleep(0.01)
             if progressive_continuous:
                 text_prev = ""
             else:
@@ -1229,7 +1230,7 @@ This creates the directory used to store internal data, so other commands such a
     subparse.add_argument(
         "--simulate-input-method",
         dest="input_method",
-        default="auto",
+        default="pynput",
         choices=("auto", "pynput"),
         help=(
             "Choose the tool to simulate keyboard inputs. Valid choices are:\n"
