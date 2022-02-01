@@ -565,7 +565,7 @@ def text_from_vosk_pipe(
     else:
         # https://stsaz.github.io/fmedia/recording/#stdout
         cmd = (
-            "fmedia",
+            "C:\\Users\\samuel.jahnke.ne\\fmedia\\fmedia.exe",
             "--record",
             "--out=@stdout.wav",
             "--rate=%d" % sample_rate,
