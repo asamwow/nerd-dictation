@@ -621,7 +621,7 @@ def text_from_vosk_pipe(
             return Key.alt
         if (key == "control"):
             return Key.ctrl
-        if key == "Backspace":
+        if key == "BackSpace":
             return Key.backspace
         if key == "Tab":
             return Key.tab
@@ -654,6 +654,7 @@ def text_from_vosk_pipe(
                 windows_command_hack("shift+" + char.lower(), kbd)
             else:
                 kbd.type(char)
+            time.sleep(0.01)
 
 
     def handle_fn_wrapper(text: str, is_partial_arg: bool) -> None:
