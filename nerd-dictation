@@ -627,6 +627,8 @@ def text_from_vosk_pipe(
             return Key.tab
         if key == "enter":
             return Key.enter
+        if key == "f8":
+            return Key.f8
         return None
 
     def windows_command_hack(command, kbd):
