@@ -623,17 +623,25 @@ def text_from_vosk_pipe(
             return Key.ctrl
         if key == "BackSpace":
             return Key.backspace
+        if key == "Delete":
+            return Key.delete
         if key == "Tab":
             return Key.tab
         if key == "enter":
             return Key.enter
         if key == "f8":
             return Key.f8
+        if key == "[sleep]":
+            return Key.f8
         return None
 
     def windows_command_hack(command, kbd):
         from pynput.keyboard import Key
         args = command.split('+')
+        if (args[0] == "[sleep]"):
+            time.sleep(0.1)
+            args = args[1:]
+            command = args[0]
         leader_key = windows_parse_key(args[0])
         if len(args) > 1 and leader_key != None:
             with kbd.pressed(leader_key):
