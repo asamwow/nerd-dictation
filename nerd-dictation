@@ -664,7 +664,7 @@ def text_from_vosk_pipe(
                 windows_command_hack("shift+" + char.lower(), kbd)
             else:
                 kbd.type(char)
-            time.sleep(0.01)
+            time.sleep(0.04)
 
 
     def handle_fn_wrapper(text: str, is_partial_arg: bool) -> None:
@@ -981,7 +981,9 @@ def main_begin(
                         subprocess.check_output(cmd).decode("utf-8")
                 else:
                     if input_method == "pynput":
-                        keyboard.type(text_block)
+                        for char in text_block:
+                            keyboard.type(char)
+                            time.sleep(0.04)
                     else:
                         cmd = (
                             "xdotool",
