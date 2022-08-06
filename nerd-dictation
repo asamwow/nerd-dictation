@@ -670,11 +670,14 @@ def text_from_vosk_pipe(
 
     # Use code to delay exiting, allowing reading the recording buffer to catch-up.
     code = 0
+    wait_time = 0
+    last_time = time.time()
 
     if idle_time > 0.0:
         idle_time_prev = time.time()
 
     while code == 0:
+        last_time = time.time()
         # -1=cancel, 0=continue, 1=finish.
         code = exit_fn(handled_any)
 
@@ -697,7 +700,10 @@ def text_from_vosk_pipe(
         if data:
             ok = rec.AcceptWaveform(data)
 
-            if ok:
+            if ok or wait_time > 1:
+                if wait_time > 1:
+                    print("wait time exceeded")
+                wait_time = 0
                 json_text = rec.Result()
                 json_text_partial_prev = ""
                 json_data = json.loads(json_text)
@@ -709,14 +715,19 @@ def text_from_vosk_pipe(
                 # Only for comparison, to detect change.
                 # if use_timeout:
                 json_text = rec.PartialResult()
+
+                json_data = json.loads(json_text)
+                text = json_data["partial"]
+
                 # Without this, there are *many* calls with the same partial text.
                 if json_text_partial_prev != json_text:
                     json_text_partial_prev = json_text
-
-                    json_data = json.loads(json_text)
-                    text = json_data["partial"]
                     if text:
+                        wait_time = 0
                         handle_fn_wrapper(text, True)
+                else:
+                    if text not in [ "the", "huh" ]:
+                        wait_time += time.time() - last_time                    
 
             # Monitor the partial output.
             # Finish if no changes are made for `timeout` seconds.
@@ -1171,7 +1182,7 @@ This creates the directory used to store internal data, so other commands such a
             numbers_as_digits=args.numbers_as_digits,
             numbers_use_separator=args.numbers_use_separator,
             timeout=args.timeout,
-            idle_time=min(args.idle_time, 0.25),
+            idle_time=min(args.idle_time, 0.1),
             delay_exit=args.delay_exit,
             punctuate_from_previous_timeout=args.punctuate_from_previous_timeout,
             output=args.output,
